@@ -63,6 +63,10 @@ public class Bird extends SwingWorker<Void, ArrayList<Integer>>{
         velocity.set(jumpVelocityY);
     }
 
+    public void gameOver(){
+        gameOver = true;
+    }
+
     public ImageIcon getBirdImage(){
         return birdImage;
     }
@@ -78,4 +82,5 @@ public class Bird extends SwingWorker<Void, ArrayList<Integer>>{
     public JLabel getBirdLabel() {
         return birdLabel;
     }
+
 }
