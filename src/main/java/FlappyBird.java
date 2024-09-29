@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
@@ -10,76 +11,103 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Thread.sleep;
 
-public class FlappyBird extends SwingWorker<Integer, Integer> {
+public class FlappyBird extends SwingWorker<Void, Integer> {
     private Bird bird;
     private ArrayList<Pipe> pipes;
-    private AtomicInteger score;
+    private AtomicInteger score = new AtomicInteger(0);
     private AtomicBoolean gameOver;
     //private Semaphore sem;
     private int width, heigth;
-    private static AtomicInteger nrPipesWindow = new AtomicInteger(0);
-    private ReentrantLock maxPipesLock = new ReentrantLock();
-    private ReentrantLock newPipeLock = new ReentrantLock();
-    private Condition maxPipesCond = maxPipesLock.newCondition();
-    private Condition newPipeCond = newPipeLock.newCondition();
     private View view;
     private PipesController pipesController;
+    private JTextField scoreText;
 
     public FlappyBird() {
         width = 850;
         heigth = 638;
+        pipesController = new PipesController(width);
+        pipes = pipesController.getPipes();
         gameOver = new AtomicBoolean(false);
         bird = new Bird(30, 320);
-        pipes = new ArrayList<Pipe>();
-        for (int i = 0; i < 8; i++) {
-            pipes.add(new Pipe(width, maxPipesLock, newPipeLock, maxPipesCond, newPipeCond, i));
-        }
-        view = new View(pipes, bird);
+        scoreText = new JTextField(10);
+        view = new View(pipes, bird, scoreText);
+        //this.view = view;
+        //view.startGame(bird, pipes, scoreText);
         bird.execute();
-        for (Pipe p : pipes)
+        //Thread[] thPipes = new Thread[pipes.size()];
+        //int i = 0;
+        for (Pipe p : pipes) {
             p.execute();
-        pipesController = new PipesController(pipes);
+            //thPipes[i] = new Thread(p);
+            //thPipes[i].start();
+        }
         pipesController.execute();
     }
 
 
     @Override
-    protected Integer doInBackground() throws Exception {
-        int minTime = 1500, maxTime = 4000, currentTime;
-        //System.out.println("Game: Am inceput");
-        while (!gameOver.get()) {
-            //System.out.println("Game: Am inceput");
-            maxPipesLock.lock();
-            System.out.println("Nr. Pipe-uri:" + nrPipesWindow.get());
-            while (nrPipesWindow.get() >= 8) {
-                maxPipesCond.await();
+    protected Void doInBackground() throws Exception {
+        while(!gameOver.get()){
+            for(Pipe p : pipes){
+                if(p.isInsideWindow()) {
+                    p.move();
+                }
             }
-            //System.out.println("Game: Am iesit din primul lock");
-            maxPipesLock.unlock();
-
-            currentTime = (int)(Math.random() * (maxTime - minTime) + minTime);
-            sleep(currentTime);
-
-            newPipeLock.lock();
-            Pipe.setAvailable(true); // trezesc un pipe si reintra prin stanga ferestrei
-            newPipeCond.signal();
-            //System.out.println("Game: Am trezit");
-            newPipeLock.unlock();
+            Collections.sort(pipes);
+            increaseScore();
+//            if(gameOver()) {
+//                System.out.println("Game over");
+//                new GameOverFrame(score.get(), score.get());
+//                bird.cancel(true);
+//                for(Pipe p : pipes){
+//                    p.cancel(true);
+//                }
+//                pipesController.cancel(true);
+//                this.cancel(true);
+//            }
+            publish(score.get());
+            sleep(100);
         }
         return null;
     }
 
-    public void movePipes() {
-        for (Pipe p : pipes) {
-            p.move();
+    @Override
+    protected void process(List<Integer> chunks){
+        Integer score = chunks.get(chunks.size()-1);
+        for(Pipe p : pipes){
+            if(p.isInsideWindow()) {
+                p.setPipeLocation();
+                //System.out.println(p);
+            }
         }
+        scoreText.setSize(60, 20);
+        scoreText.setLocation(30, 30);
+        scoreText.setText("Score: " + score);
     }
 
-    public void process(List<Integer> chunks) {
-
+    public void increaseScore(){
+        Pipe p = pipes.get(0);
+        if(p.hasPassed(bird.getCoordX()))
+            if(p.getPassed()) {
+                score.getAndIncrement();
+            }
     }
 
-    public static void setNrPipesWindow(AtomicInteger nrPipesWindow) {
-        FlappyBird.nrPipesWindow = nrPipesWindow;
-    }
+    public boolean gameOver(){
+        Pipe firstPipe = pipes.get(0);
+        //daca pasarea ajunge sa "treaca prin" obstacol, verificam daca nu cumva atinge obstacolul
+        if(bird.getCoordX()+bird.getBirdWidth()>=firstPipe.getCoordX().get()){
+            //verificam daca atinge sus
+            if(bird.getCoordY() <= firstPipe.getLowestCoordYTopPipe())
+                return true;
+            System.out.println("Bird: " + bird.getCoordY()+bird.getBirdHeigth() + " vs Pipe: " + firstPipe.getHighestCoordYButtomPipe());
+            if(bird.getCoordY()+bird.getBirdHeigth() >= firstPipe.getHighestCoordYButtomPipe())
+                return true;
+        }
+        //return false;
+        //daca pasarea nu atinge obstacolul, verificam daca a iesit din fereastra sau nu
+        return !bird.insideWindow(heigth);
+
+      }
+
 }

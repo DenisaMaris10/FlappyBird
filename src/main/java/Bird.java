@@ -54,11 +54,15 @@ public class Bird extends SwingWorker<Void, ArrayList<Integer>>{
         //System.out.println("CoordX: " + coord.get(0)+ " CoordY: " + coord.get(1));
     }
 
-    public void moveBird() throws InterruptedException {
-        sleep(2000);
-        coordY.addAndGet(100);
-        birdLabel.setLocation(coordX.get(), coordY.get());
+    public boolean insideWindow(int heigth){
+        return coordY.get()>=0 && (coordY.get()+birdHeigth<=heigth);
     }
+
+//    public void moveBird() throws InterruptedException {
+//        sleep(2000);
+//        coordY.addAndGet(100);
+//        birdLabel.setLocation(coordX.get(), coordY.get());
+//    }
     public void birdJump(){
         velocity.set(jumpVelocityY);
     }
@@ -83,4 +87,11 @@ public class Bird extends SwingWorker<Void, ArrayList<Integer>>{
         return birdLabel;
     }
 
+    public int getBirdWidth() {
+        return birdWidth;
+    }
+
+    public int getBirdHeigth() {
+        return birdHeigth;
+    }
 }

@@ -151,13 +151,19 @@ public class Pipe extends SwingWorker<Void, ArrayList<Integer>> implements Compa
 
     @Override
     public int compareTo(Pipe o) {
-        if(this.isInsideWindow() && !o.isInsideWindow())
+        if(this.getPassed() && !o.getPassed())
+            return 1;
+        else if(!this.getPassed() && o.getPassed())
             return -1;
-        else {
-            if(!this.isInsideWindow() && o.isInsideWindow())
+        else{
+            if (this.isInsideWindow() && !o.isInsideWindow())
                 return -1;
-            else
-                return this.getCoordX().get()-o.getCoordX().get();
+            else {
+                if (!this.isInsideWindow() && o.isInsideWindow())
+                    return 1;
+                else
+                    return this.getCoordX().get() - o.getCoordX().get();
+            }
         }
     }
 
@@ -168,7 +174,73 @@ public class Pipe extends SwingWorker<Void, ArrayList<Integer>> implements Compa
         return indice;
     }
     public String toString(){
-        return coordX.toString();
+        return indice + " " + coordX + " " + passed ;
     }
 
+    public boolean getPassed(){
+        return passed.get();
+    }
+    public boolean hasPassed(int coord){
+        if(coord > coordX.get()/2){
+            passed.set(true);
+            return true;
+        }
+        return false;
+    }
+    public void setPassed(boolean b){
+        passed.set(b);
+    }
+
+    public int getLowestCoordYTopPipe(){
+        return topCoordY.get()+pipeHeigth;
+    }
+
+    public int getHighestCoordYButtomPipe(){
+        return buttomCoordY.get();
+    }
+
+
+//    @Override
+//    public void run() {
+//        try {
+//            while (!gameOver) {
+//                //System.out.println("Pipe: coordX" + coordX);
+//                //coordX.addAndGet(velocityX);
+//                if (coordX.get() <= -pipeWidth) {
+//                    resetPipe();
+//                    insideWindow.set(false);
+//                    // in momentul in care un pipe ajunge la final, adica trece de pasare si "iese" din fereastra, anunta threadul "FlappyBird" (jocul in sine)
+//                    // ca este disponibil sa fie din nou introdus in fereastra (sa fie un nou obstacol pentru pasare)
+//                    maxPipesLock.lock();
+////                if(nrPipesWindow.get()!=0) {
+////                    nrPipesWindow.getAndDecrement(); // nu cred ca mai era nevoie sa folosesc AtomicInteger, avand in vedere ca folosesc lacatul
+////                    FlappyBird.setNrPipesWindow(nrPipesWindow);
+////                }
+//                    maxPipesCond.signal();
+//                    maxPipesLock.unlock();
+//
+//                    // thread-ul pipe-ului care tocmai a ajuns la final va astepta pana in momentul in care primeste semnal de la threadul "FlappyBird"
+//                    newPipeLock.lock();
+//                    while (!available) {
+//                        newPipeCond.await();
+//                    }
+//                    insideWindow.set(true);
+//                    available = false;
+////                nrPipesWindow.getAndIncrement();
+////                FlappyBird.setNrPipesWindow(nrPipesWindow);
+//                    newPipeLock.unlock();
+//
+//                }
+//
+//
+//                try {
+//                    sleep(200);
+//                } catch (Exception e) {
+//                    System.out.println(e.getMessage());
+//                }
+//            }
+//        }catch (Exception e){
+//            System.out.println(e.getMessage());
+//        }
+//    }
 }
