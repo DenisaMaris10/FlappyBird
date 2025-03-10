@@ -14,6 +14,7 @@ public class View extends JFrame {//implements ActionListener{
     private JTextField scoreText;
     private JButton startGameButton;
     private FlappyBird flappyBird;
+    private boolean firstMove = true;
 
     public View(){
 
@@ -33,7 +34,7 @@ public class View extends JFrame {//implements ActionListener{
             public void actionPerformed(ActionEvent e) {
                 startGameButton.setVisible(false);
                 startGameButton.setEnabled(false);
-                flappyBird = new  FlappyBird();
+                flappyBird = new FlappyBird();
                 flappyBird.execute();
             }
         });
@@ -134,6 +135,9 @@ public class View extends JFrame {//implements ActionListener{
             @Override
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode() == KeyEvent.VK_SPACE){
+                    if(firstMove){
+
+                    }
                     bird.birdJump();
                     System.out.println("Space");
                 }

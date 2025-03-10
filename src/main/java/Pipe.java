@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.lang.Thread.sleep;
 
 public class Pipe extends SwingWorker<Void, ArrayList<Integer>> implements Comparable<Pipe> {
-    private AtomicInteger coordX, topCoordY, buttomCoordY;
+    public AtomicInteger coordX, topCoordY, buttomCoordY;
     private ImageIcon topPipeImage, buttomPipeImage;
     private JLabel topPipeLabel, buttomPipeLabel;
     private int pipeWidth = 31, pipeHeigth = 250;
@@ -44,6 +44,7 @@ public class Pipe extends SwingWorker<Void, ArrayList<Integer>> implements Compa
         this.buttomCoordY = new AtomicInteger(388); //638-250
         topPipeLabel.setBounds(this.coordX.get(), this.topCoordY.get(), pipeWidth, pipeHeigth);
         buttomPipeLabel.setBounds(this.coordX.get(), this.buttomCoordY.get(), pipeWidth, pipeHeigth);
+        //resetPipe();
         //topPipeLabel.setLocation(this.coordX.get(), this.topCoordY.get());
         //buttomPipeLabel.setLocation(this.buttomCoordY.get(), this.coordX.get());
     }
@@ -108,6 +109,8 @@ public class Pipe extends SwingWorker<Void, ArrayList<Integer>> implements Compa
         coordX.addAndGet(velocityX);
     }
 
+
+
     public void setPipeLocation(){
         topPipeLabel.setLocation(coordX.get(), topCoordY.get());
         buttomPipeLabel.setLocation(coordX.get(), buttomCoordY.get());
@@ -129,8 +132,8 @@ public class Pipe extends SwingWorker<Void, ArrayList<Integer>> implements Compa
         return buttomPipeLabel;
     }
 
-    public AtomicInteger getCoordX() {
-        return coordX;
+    public int getCoordX() {
+        return coordX.get();
     }
 
     public boolean isInsideWindow() {
@@ -162,7 +165,7 @@ public class Pipe extends SwingWorker<Void, ArrayList<Integer>> implements Compa
                 if (!this.isInsideWindow() && o.isInsideWindow())
                     return 1;
                 else
-                    return this.getCoordX().get() - o.getCoordX().get();
+                    return this.getCoordX() - o.getCoordX();
             }
         }
     }
