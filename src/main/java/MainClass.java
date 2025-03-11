@@ -1,8 +1,9 @@
+import javax.swing.*;
+
 public class MainClass {
     public static void main(String[] args){
-        FlappyBird game = new FlappyBird();
-        Thread thGame = new Thread(game);
-        thGame.start();
+        View view = new View();
+        //FlappyBird game = new FlappyBird();
         //game.execute();
     }
 }

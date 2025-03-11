@@ -50,15 +50,21 @@ public class Bird extends SwingWorker<Void, ArrayList<Integer>>{
     @Override
     protected void process(List<ArrayList<Integer>> chunks) {
         ArrayList<Integer> coord = chunks.get(chunks.size() - 1);
-        birdLabel.setLocation(coord.get(0), coord.get(1));
+        birdLabel.setLocation(coord.get(0), coord.get(1)); // am schimbat
         //System.out.println("CoordX: " + coord.get(0)+ " CoordY: " + coord.get(1));
     }
 
-    public void moveBird() throws InterruptedException {
-        sleep(2000);
-        coordY.addAndGet(100);
-        birdLabel.setLocation(coordX.get(), coordY.get());
+    public boolean insideWindow(int heigth){
+        boolean first = coordY.get()>=0;
+        boolean second = (coordY.get()+birdHeigth<=heigth);
+        return first && second;
     }
+
+//    public void moveBird() throws InterruptedException {
+//        sleep(2000);
+//        coordY.addAndGet(100);
+//        birdLabel.setLocation(coordX.get(), coordY.get());
+//    }
     public void birdJump(){
         velocity.set(jumpVelocityY);
     }
@@ -76,11 +82,19 @@ public class Bird extends SwingWorker<Void, ArrayList<Integer>>{
     }
 
     public int getCoordY() {
-        return coordY.get();
+        int value = coordY.get();
+        return value;
     }
 
     public JLabel getBirdLabel() {
         return birdLabel;
     }
 
+    public int getBirdWidth() {
+        return birdWidth;
+    }
+
+    public int getBirdHeigth() {
+        return birdHeigth;
+    }
 }
